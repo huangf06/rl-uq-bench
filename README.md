@@ -195,13 +195,13 @@ If you use this benchmark in your research, please cite:
   author = {Huang, Fei},
   title = {RL-UQ-Bench: Uncertainty Quantification Benchmark for Deep Reinforcement Learning},
   url = {https://github.com/huangf06/rl-uq-bench},
-  year = {2024}
+  year = {2025}
 }
 
-@mastersthesis{huang2024uq_deep_rl,
+@mastersthesis{huang2025uq_deep_rl,
   title = {Uncertainty Quantification in Deep Reinforcement Learning: Systematic Benchmarks, Noise Paradox, and Calibration Complexity},
   author = {Huang, Fei},
-  year = {2024},
+  year = {2025},
   school = {Vrije Universiteit Amsterdam},
   type = {Master's Thesis}
 }
