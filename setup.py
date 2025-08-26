@@ -10,9 +10,11 @@ with open(os.path.join("rl_zoo3", "version.txt")) as file_handler:
 shutil.copytree("hyperparams", os.path.join("rl_zoo3", "hyperparams"))
 
 long_description = """
-# RL Baselines3 Zoo: A Training Framework for Stable Baselines3 Reinforcement Learning Agents
+# RL-UQ-Bench: Uncertainty Quantification Benchmark for Deep Reinforcement Learning
 
-See https://github.com/DLR-RM/rl-baselines3-zoo
+A comprehensive evaluation framework for uncertainty quantification (UQ) methods in deep reinforcement learning agents.
+
+See https://github.com/huangf06/rl-uq-bench
 """
 install_requires = [
     "sb3_contrib>=2.7.0a0,<3.0",
@@ -46,12 +48,12 @@ setup(
     entry_points={"console_scripts": ["rl_zoo3=rl_zoo3.cli:main"]},
     install_requires=install_requires,
     extras_require={"plots": plots_requires, "tests": test_requires},
-    description="A Training Framework for Stable Baselines3 Reinforcement Learning Agents",
-    author="Antonin Raffin",
-    url="https://github.com/DLR-RM/rl-baselines3-zoo",
-    author_email="antonin.raffin@dlr.de",
-    keywords="reinforcement-learning-algorithms reinforcement-learning machine-learning "
-    "gymnasium openai stable baselines sb3 toolbox python data-science",
+    description="Uncertainty Quantification Benchmark for Deep Reinforcement Learning",
+    author="Fei Huang",
+    url="https://github.com/huangf06/rl-uq-bench",
+    author_email="f.huang@student.tudelft.nl",
+    keywords="uncertainty-quantification reinforcement-learning machine-learning "
+    "gymnasium openai stable baselines sb3 benchmark deep-learning uq",
     license="MIT",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -59,7 +61,7 @@ setup(
     python_requires=">=3.9",
     # PyPI package information.
     project_urls={
-        "Code": "https://github.com/DLR-RM/rl-baselines3-zoo",
+        "Code": "https://github.com/huangf06/rl-uq-bench",
         "Documentation": "https://rl-baselines3-zoo.readthedocs.io/en/master/",
         "Changelog": "https://github.com/DLR-RM/rl-baselines3-zoo/blob/master/CHANGELOG.md",
         "Stable-Baselines3": "https://github.com/DLR-RM/stable-baselines3",

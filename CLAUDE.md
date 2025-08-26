@@ -1,26 +1,28 @@
-# Project: UQ Benchmark in Deep Reinforcement Learning
+# RL-UQ-Bench: Uncertainty Quantification Benchmark for Deep RL
 
-This project aims to benchmark multiple uncertainty quantification (UQ) methods in deep RL agents (e.g., DQN, Bootstrapped DQN, QR-DQN, MC Dropout) across multiple noise settings and random seeds.
+This is a comprehensive benchmarking framework for evaluating uncertainty quantification (UQ) methods in deep reinforcement learning agents.
 
-The goal is to evaluate each method's calibration, robustness, and distributional quality using a consistent experimental framework.
+## Project Overview
 
-## Claude Behavior Guidelines
+RL-UQ-Bench provides systematic evaluation of multiple UQ methods (Bootstrapped DQN, QR-DQN, MC Dropout, hybrid approaches) across various noise settings and environments using rigorous statistical evaluation.
 
-- You may infer the folder and file structure from the project directly; it is not listed here.
-- Assist with code editing, analysis, and report writing as needed.
-- When writing code, focus on minimal, clean diffs or full replacements as appropriate.
-- When writing evaluation summaries, use scientific writing appropriate for a master's thesis.
+## Key Components
 
-## Metric Focus
+- **Training Framework**: Extended RL Baselines3 Zoo with UQ capabilities
+- **Evaluation Pipeline**: Multi-stage UQ evaluation with comprehensive metrics  
+- **Experiment Configurations**: Standardized setups for reproducible benchmarks
+- **Statistical Analysis**: Rigorous evaluation with multiple seeds and significance testing
 
-The main evaluation metrics are:
-- ECE (Expected Calibration Error) / ACE
-- CRPS (Continuous Ranked Probability Score)
-- Coverage
-- WIS (Weighted Interval Score)
+## Evaluation Metrics
 
-## Known Constraints
+Primary metrics for UQ quality assessment:
+- **ECE/ACE**: Expected/Adaptive Calibration Error
+- **CRPS**: Continuous Ranked Probability Score  
+- **Coverage**: Prediction interval coverage
+- **WIS**: Weighted Interval Score
 
-- Experiments involve 4 UQ methods × 5 noise levels × 10 seeds.
-- Evaluation and plotting are conducted post-hoc from saved models.
-- Metrics may be affected by reward clipping or noise injection.
+## Usage
+
+This framework supports both individual method evaluation and comprehensive benchmarking across multiple methods, environments, and noise conditions.
+
+For detailed usage instructions, see the main README.md file.
