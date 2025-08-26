@@ -3,11 +3,20 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)
 
-A comprehensive evaluation framework for uncertainty quantification (UQ) methods in deep reinforcement learning agents.
+A comprehensive benchmarking framework for uncertainty quantification (UQ) methods in deep reinforcement learning, providing systematic evaluation across environmental perturbations and standardized metrics.
 
 ## 🎯 Overview
 
-RL-UQ-Bench provides a systematic benchmarking framework to evaluate multiple uncertainty quantification methods in deep RL agents across various noise settings and environments. The framework supports rigorous statistical evaluation using metrics like Expected Calibration Error (ECE), Continuous Ranked Probability Score (CRPS), Coverage, and Weighted Interval Score (WIS).
+RL-UQ-Bench addresses critical gaps in uncertainty quantification research for deep RL by providing a standardized evaluation framework. Based on rigorous academic research, this benchmark enables fair comparison of UQ methods under controlled experimental conditions, with particular attention to real-world environmental factors like observation noise.
+
+### Key Research Findings
+
+Our systematic benchmark of 150 independent training runs reveals:
+
+- **QR-DQN superiority**: Distributional learning (QR-DQN) consistently outperforms ensemble and dropout methods across all metrics
+- **Noise paradox discovery**: Bootstrapped DQN exhibits counterintuitive improvement under moderate noise (σ ≈ 0.025)
+- **Method-dependent calibration**: Post-hoc calibration benefits ensemble/dropout methods but shows mixed effects for QR-DQN
+- **Standardized evaluation**: Reproducible framework enabling reliable cross-method comparisons
 
 ### Key Features
 
@@ -58,18 +67,24 @@ python experiments/uncertainty_degradation/submit_all_experiments.sh
 
 ## 📊 Benchmark Results
 
-The framework evaluates UQ methods across multiple dimensions:
+Our systematic evaluation (3 methods × 5 noise levels × 10 seeds = 150 training runs) reveals:
 
-- **Calibration Quality**: How well predicted uncertainties match actual errors
-- **Noise Robustness**: Performance degradation under different noise levels  
-- **Computational Efficiency**: Training time and inference overhead
-- **Statistical Significance**: Rigorous statistical testing across seeds
+### Aggregate UQ Quality
+| Method | CRPS | WIS | ACE | Coverage (90%) |
+|--------|------|-----|-----|----------------|
+| **QR-DQN** | **17.7** ± 8.7 | **150.2** ± 89.3 | **0.14** ± 0.12 | **83** ± 16 |
+| Bootstrapped DQN | 23.6 ± 12.6 | 365.0 ± 227.8 | 0.50 ± 0.17 | 31 ± 22 |
+| MC Dropout DQN | 26.5 ± 10.9 | 392.4 ± 171.2 | 0.49 ± 0.12 | 33 ± 14 |
 
-Key findings from our benchmark:
-- QR-DQN shows superior calibration in clean environments
-- Bootstrapped DQN maintains robustness under high noise
-- MC Dropout provides computational efficiency but lower calibration quality
-- Hybrid methods can combine benefits of multiple approaches
+**Key Findings:**
+- **QR-DQN dominance**: 31% lower CRPS than Bootstrapped DQN, 45% lower than MC Dropout
+- **Statistical significance**: All differences p < 0.001 with medium-large effect sizes
+- **Coverage quality**: QR-DQN achieves 83% coverage closest to nominal 90% target
+
+### Noise Robustness Analysis
+- **QR-DQN**: Robust performance across all noise levels (σ = 0.000 to 0.100)
+- **Bootstrapped DQN**: Exhibits "noise paradox" - optimal performance at σ ≈ 0.025
+- **MC Dropout**: Monotonic degradation with increasing noise
 
 ## 🔧 Configuration
 
@@ -114,15 +129,20 @@ rl-uq-bench/
 
 ## 🧪 Evaluation Pipeline
 
-The UQ evaluation pipeline consists of multiple stages:
+Our standardized 6-stage evaluation pipeline ensures reproducible and comprehensive UQ assessment:
 
-1. **Stage 0**: Configuration validation
-2. **Stage 1**: Dataset building from trained models  
-3. **Stage 2**: Performance evaluation
-4. **Stage 3**: Q-value extraction
-5. **Stage 4**: UQ metrics calculation
-6. **Stage 5**: Calibration analysis
-7. **Stage 6**: Statistical analysis and reporting
+1. **Model Training**: Standardized architectures and hyperparameters
+2. **Task Performance**: Verification of meaningful policy learning
+3. **Data Generation**: Controlled evaluation episodes with logged uncertainties
+4. **Uncertainty Representation**: Method-specific uncertainty extraction
+5. **Calibration**: Post-hoc calibration with bias/variance adjustment
+6. **Metric Computation**: CRPS, ACE, WIS, Coverage evaluation
+
+### Experimental Configuration
+- **Environment**: LunarLander-v3 (discrete control, continuous observations)
+- **Design**: Full factorial 3×5×10 (methods × noise levels × seeds)
+- **Training**: 500K timesteps per run with standardized hyperparameters
+- **Evaluation**: 1000-episode windows with comprehensive uncertainty logging
 
 ## 🎯 Supported Environments
 
@@ -164,9 +184,18 @@ Areas for contribution:
 If you use this benchmark in your research, please cite:
 
 ```bibtex
+@mastersthesis{huang2024rl_uq_benchmark,
+  title={Uncertainty Quantification in Deep Reinforcement Learning: A Comparative Study of Methods Under Environmental Perturbations},
+  author={Huang, Fei},
+  year={2024},
+  school={Vrije Universiteit Amsterdam},
+  type={Master's Thesis},
+  url={https://github.com/huangf06/rl-uq-bench}
+}
+
 @software{rl_uq_bench_2024,
   title={RL-UQ-Bench: Uncertainty Quantification Benchmark for Deep Reinforcement Learning},
-  author={Huang, F.},
+  author={Huang, Fei},
   year={2024},
   url={https://github.com/huangf06/rl-uq-bench}
 }

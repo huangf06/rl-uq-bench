@@ -62,11 +62,10 @@ setup(
     # PyPI package information.
     project_urls={
         "Code": "https://github.com/huangf06/rl-uq-bench",
-        "Documentation": "https://rl-baselines3-zoo.readthedocs.io/en/master/",
-        "Changelog": "https://github.com/DLR-RM/rl-baselines3-zoo/blob/master/CHANGELOG.md",
+        "Homepage": "https://github.com/huangf06/rl-uq-bench",
+        "Issues": "https://github.com/huangf06/rl-uq-bench/issues",
         "Stable-Baselines3": "https://github.com/DLR-RM/stable-baselines3",
-        "RL-Zoo": "https://github.com/DLR-RM/rl-baselines3-zoo",
-        "SBX": "https://github.com/araffin/sbx",
+        "RL-Baselines3-Zoo": "https://github.com/DLR-RM/rl-baselines3-zoo",
     },
     classifiers=[
         "Programming Language :: Python :: 3",
