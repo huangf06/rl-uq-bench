@@ -112,7 +112,7 @@ def main():
     if success_count == total_checks:
         print("🎉 Perfect! RL-UQ-Bench is ready to use!")
         print("\n🚀 Quick Start:")
-        print("   python train.py --algo qrdqn --env LunarLander-v2")
+        print("   python train.py --algo qrdqn --env LunarLander-v3")
         print("   python -m uq_pipeline.runner --config uq_pipeline/configs/complete_multi_method_experiment.yml")
         return 0
     else:

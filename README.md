@@ -49,7 +49,14 @@ pip install -e .
 #### Training a UQ-enabled agent:
 
 ```bash
-python train.py --algo qrdqn --env LunarLander-v2 --noise-std 0.1 --seed 42
+# QR-DQN with noise
+python train.py --algo qrdqn --env LunarLander-v3 --noise-std 0.025 --seed 42
+
+# Bootstrapped DQN ensemble  
+python train.py --algo bootstrapped_dqn --env LunarLander-v3 --seed 42
+
+# MC Dropout DQN
+python train.py --algo mcdropout_dqn --env LunarLander-v3 --noise-std 0.1 --seed 42
 ```
 
 #### Running UQ evaluation:
@@ -97,7 +104,7 @@ Experiments are configured via YAML files in `experiments/` and `uq_pipeline/con
 experiment:
   name: "noise_robustness_test"
   methods: ["dqn", "qrdqn", "bootstrapped_dqn", "mcdropout_dqn"]
-  environments: ["LunarLander-v2"]
+  environments: ["LunarLander-v3"]
   noise_levels: [0.0, 0.05, 0.1, 0.2]
   seeds: [0, 1, 2, 3, 4]
   
@@ -139,15 +146,15 @@ Our standardized 6-stage evaluation pipeline ensures reproducible and comprehens
 6. **Metric Computation**: CRPS, ACE, WIS, Coverage evaluation
 
 ### Experimental Configuration
-- **Environment**: LunarLander-v3 (discrete control, continuous observations)
+- **Environment**: LunarLander-v3 (continuous 8-dimensional state space, 4 discrete actions)
 - **Design**: Full factorial 3×5×10 (methods × noise levels × seeds)
-- **Training**: 500K timesteps per run with standardized hyperparameters
-- **Evaluation**: 1000-episode windows with comprehensive uncertainty logging
+- **Training**: Standardized hyperparameters and network architectures
+- **Evaluation**: 100-episode evaluation windows per trained agent
 
 ## 🎯 Supported Environments
 
 Currently tested environments:
-- **LunarLander-v2**: Classic control with discrete actions
+- **LunarLander-v3**: Classic control with discrete actions
 - **CartPole-v1**: Simple control benchmark
 - **MountainCar-v0**: Sparse reward environment
 
