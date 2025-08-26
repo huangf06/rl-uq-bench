@@ -1,0 +1,18 @@
+# QR-DQN 最终成功配置 - CartPole-v1 无噪声基准
+# 基于观察到的后期500分性能，延长训练确保稳定收敛
+
+CartPole-v1:
+  n_timesteps: !!float 8e4  # 增加到80k确保充分训练
+  policy: 'MlpPolicy'
+  learning_rate: !!float 2.3e-3  # 保持原始学习率
+  batch_size: 64
+  buffer_size: 100000
+  learning_starts: 1000
+  gamma: 0.99
+  target_update_interval: 10
+  train_freq: 256
+  gradient_steps: 128
+  exploration_fraction: 0.16
+  exploration_final_eps: 0.04
+  policy_kwargs: "dict(net_arch=[512, 512], n_quantiles=10)"  # 更大网络增加容量
+  # 无噪声基准

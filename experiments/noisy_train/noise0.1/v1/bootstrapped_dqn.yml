@@ -1,0 +1,121 @@
+# Bootstrapped DQN V1 配置 - Noise σ=0.1 改进版本
+# 基于: experiments/noisy_train/noise0.1/bootstrapped_dqn.yml (baseline)
+# 目标: 通过增加训练时间和优化参数达到 ≥150 分数
+
+atari:
+  env_wrapper:
+    - stable_baselines3.common.atari_wrappers.AtariWrapper
+  frame_stack: 4
+  policy: 'CnnPolicy'
+  n_timesteps: !!float 1e7
+  buffer_size: 100000
+  learning_rate: !!float 1e-4
+  batch_size: 32
+  learning_starts: 100000
+  target_update_interval: 1000
+  train_freq: 4
+  gradient_steps: 1
+  exploration_fraction: 0.1
+  exploration_final_eps: 0.01
+  optimize_memory_usage: False
+  experiment_note: "noisy_0.1_v1"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.1
+      clip: true
+      inplace: false
+
+# Almost Tuned
+CartPole-v1:
+  n_timesteps: !!float 5e4
+  policy: 'MlpPolicy'
+  learning_rate: !!float 2.3e-3
+  batch_size: 64
+  buffer_size: 100000
+  learning_starts: 1000
+  gamma: 0.99
+  target_update_interval: 10
+  train_freq: 256
+  gradient_steps: 128
+  exploration_fraction: 0.16
+  exploration_final_eps: 0.04
+  policy_kwargs: "dict(net_arch=[256, 256])"
+  experiment_note: "noisy_0.1_v1"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.1
+      clip: true
+      inplace: false
+
+# Tuned
+MountainCar-v0:
+  n_timesteps: !!float 1.2e5
+  policy: 'MlpPolicy'
+  learning_rate: !!float 4e-3
+  batch_size: 128
+  buffer_size: 10000
+  learning_starts: 1000
+  gamma: 0.98
+  target_update_interval: 600
+  train_freq: 16
+  gradient_steps: 8
+  exploration_fraction: 0.2
+  exploration_final_eps: 0.07
+  policy_kwargs: "dict(net_arch=[256, 256])"
+  experiment_note: "noisy_0.1_v1"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.1
+      clip: true
+      inplace: false
+
+# V1 改进 - LunarLander-v3
+LunarLander-v3:  
+  n_timesteps: !!float 4e5  # 增加训练时间：1e5 → 4e5
+  policy: 'MlpPolicy'
+  learning_rate: !!float 6.3e-4
+  batch_size: 128
+  buffer_size: 100000  # 增加缓冲区：50000 → 100000
+  learning_starts: 5000  # 增加初始探索：1000 → 5000
+  gamma: 0.99
+  target_update_interval: 500  # 降低更新频率：100 → 500
+  train_freq: 8
+  gradient_steps: -1
+  exploration_fraction: 0.2  # 增加探索比例：0.12 → 0.2
+  exploration_final_eps: 0.05  # 保持更多探索：0.1 → 0.05
+  policy_kwargs: "dict(net_arch=[256, 256])"
+  n_heads: 10  # Bootstrap头数
+  bootstrap_prob: 0.65  # Bootstrap概率
+  experiment_note: "noisy_0.1_v1"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.1
+      clip: true
+      inplace: false
+
+# Tuned
+Acrobot-v1:
+  n_timesteps: !!float 1e5
+  policy: 'MlpPolicy'
+  learning_rate: !!float 6.3e-4
+  batch_size: 128
+  buffer_size: 50000
+  learning_starts: 0
+  gamma: 0.99
+  target_update_interval: 250
+  train_freq: 4
+  gradient_steps: -1
+  exploration_fraction: 0.12
+  exploration_final_eps: 0.1
+  policy_kwargs: "dict(net_arch=[256, 256])"
+  experiment_note: "noisy_0.1_v1"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.1
+      clip: true
+      inplace: false 

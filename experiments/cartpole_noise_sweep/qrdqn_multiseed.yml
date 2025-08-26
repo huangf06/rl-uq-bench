@@ -1,0 +1,24 @@
+# QR-DQN 多种子测试 - 基于成功的保守配置
+# 测试种子对噪声环境收敛的影响
+
+CartPole-v1:
+  n_timesteps: !!float 1.5e5       # 基于成功配置延长
+  policy: 'MlpPolicy'
+  learning_rate: !!float 5e-4      # 基于成功配置稍微保守
+  batch_size: 128
+  buffer_size: 100000
+  learning_starts: 2000
+  gamma: 0.99
+  target_update_interval: 20
+  train_freq: 128
+  gradient_steps: 64
+  exploration_fraction: 0.25
+  exploration_final_eps: 0.02
+  policy_kwargs: "dict(net_arch=[512, 512], n_quantiles=15)"
+  experiment_note: "multiseed_noise_0.075"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.075
+      clip: true
+      inplace: false

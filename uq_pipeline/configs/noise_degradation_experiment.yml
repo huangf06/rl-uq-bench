@@ -1,0 +1,139 @@
+# Noise Degradation Experiment Configuration
+# Based on existing analysis/configs setup
+
+experiment:
+  name: "noise_degradation_qrdqn_unified"
+  description: "QRDQN uncertainty degradation under observation noise"
+  version: "2.0"
+
+environment:
+  id: "LunarLander-v3"
+  success_threshold: 200
+  
+  noise_levels:
+    uncertainty_degradation_noise0.000: 0.000
+    uncertainty_degradation_noise0.025: 0.025
+    uncertainty_degradation_noise0.050: 0.050
+    uncertainty_degradation_noise0.075: 0.075
+    uncertainty_degradation_noise0.100: 0.100
+  
+  # Run all noise levels (use directory names that match trained models)
+  active_noise_levels: ["uncertainty_degradation_noise0.000", "uncertainty_degradation_noise0.025", "uncertainty_degradation_noise0.050", "uncertainty_degradation_noise0.075", "uncertainty_degradation_noise0.100"]
+
+algorithms:
+  active: ["qrdqn"]
+  
+  configs:
+    qrdqn:
+      type: "distributional"
+      uncertainty_type: "quantile"
+      n_quantiles: 170
+      uncertainty_estimation:
+        method: "quantile_std"
+        quantile_range: [0.1, 0.9]
+
+data:
+  n_seeds: 10
+  seeds: [101, 307, 911, 1747, 2029, 2861, 3253, 4099, 7919, 9011]
+  n_episodes_per_seed: 10
+  eval_episodes: 100  # Total episodes = 10 episodes/seed × 10 seeds
+  n_mc_samples: 30
+  bootstrap_samples: 200
+  confidence_levels: [0.5, 0.8, 0.9]
+
+metrics:
+  distributional:
+    crps:
+      enabled: true
+      variants: ["quantile"]  # Use quantile CRPS for QRDQN
+  
+  interval_based:
+    wis:
+      enabled: true
+      confidence_levels: [0.5, 0.8, 0.9]
+    coverage:
+      enabled: true
+      confidence_levels: [0.5, 0.8, 0.9]
+  
+  calibration:
+    ace:
+      enabled: true
+      confidence_levels: [0.5, 0.8, 0.9]
+    picp:
+      enabled: true
+      confidence_levels: [0.5, 0.8, 0.9]
+  
+  performance:
+    rmse:
+      enabled: true
+    mae:
+      enabled: true
+    correlation:
+      enabled: true
+      methods: ["pearson"]
+
+calibration:
+  enabled: true
+  validation_split: 0.3
+  methods:
+    temperature_scaling:
+      enabled: true
+      search_range: [0.5, 3.0]
+      search_steps: 26
+    bias_correction:
+      enabled: true
+
+paths:
+  base_dir: "uq_pipeline"
+  data_dir: "uq_results/data"  # Correct path for data storage
+  results_dir: "uq_results/results"  # Correct path for results storage
+  models_dir: "logs/multi_env_experiments"
+  cache_dir: ".cache"
+
+model_load:
+  device: "cpu"
+  force_cpu: true
+  custom_objects:
+    learning_rate: 0.0
+    lr_schedule: null
+    exploration_schedule: null
+
+execution:
+  pipeline:
+    skip_existing: true
+    cache_duration_hours: 24
+    force_rerun: false
+  
+  stages:
+    stage0_config: true
+    stage1_dataset: true
+    stage2_performance: true
+    stage3_q_extraction: true
+    stage4_metrics: true
+    stage5_calibration: true
+    stage6_report: true
+  
+  parallel:
+    enabled: false
+    max_workers: 4
+    timeout_minutes: 30
+  
+  error_handling:
+    continue_on_failure: true
+    retry_attempts: 2
+    save_partial_results: true
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  console_enabled: true
+  file_enabled: true
+  log_file: "noise_degradation_pipeline.log"
+
+global:
+  seed: 42
+  reproducible: true
+  compression:
+    enabled: true
+    format: "xz"
+    level: 6

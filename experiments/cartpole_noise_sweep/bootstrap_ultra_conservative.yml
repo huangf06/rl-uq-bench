@@ -1,0 +1,27 @@
+# Bootstrap DQN 超保守版本 - 基于零噪声成功配置微调
+# 策略: 借鉴零噪声环境的成功参数 + 极低噪声
+
+CartPole-v1:
+  n_timesteps: !!float 2.5e5      # 25万步
+  policy: 'MlpPolicy'
+  learning_rate: !!float 1e-4      # 极保守学习率
+  batch_size: 32                   # 小batch size
+  buffer_size: 100000              
+  learning_starts: 4000            # 延迟学习开始
+  gamma: 0.99
+  target_update_interval: 100      # 稳定的target更新
+  train_freq: 16                   # 频繁但小步训练
+  gradient_steps: 8                # 保守梯度步数
+  exploration_fraction: 0.4        
+  exploration_final_eps: 0.02      
+  policy_kwargs: "dict(net_arch=[512, 256])"  # 大一些的网络
+  # Bootstrap特定参数
+  n_heads: 8                       # 稍少的head数
+  bootstrap_prob: 0.7              # 稍高的bootstrap概率
+  experiment_note: "ultra_conservative_noise_0.020"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.020             # 极低噪声
+      clip: true
+      inplace: false

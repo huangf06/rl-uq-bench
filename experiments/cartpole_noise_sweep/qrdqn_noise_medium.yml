@@ -1,0 +1,24 @@
+# QR-DQN 中等噪声版本 - σ=0.050  
+# 测试较低噪声是否更容易收敛
+
+CartPole-v1:
+  n_timesteps: !!float 1.2e5       # 适度延长
+  policy: 'MlpPolicy' 
+  learning_rate: !!float 5e-4      # 中等保守学习率
+  batch_size: 128
+  buffer_size: 150000
+  learning_starts: 3000
+  gamma: 0.99
+  target_update_interval: 15
+  train_freq: 128
+  gradient_steps: 64
+  exploration_fraction: 0.3
+  exploration_final_eps: 0.02
+  policy_kwargs: "dict(net_arch=[512, 512], n_quantiles=15)"
+  experiment_note: "medium_conservative_noise_0.050"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.050
+      clip: true
+      inplace: false

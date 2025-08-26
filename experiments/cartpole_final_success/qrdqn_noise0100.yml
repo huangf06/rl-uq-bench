@@ -1,0 +1,25 @@
+# QR-DQN 高噪声成功配置 - σ=0.100
+# 基于无噪声成功经验，针对高噪声环境优化
+
+CartPole-v1:
+  n_timesteps: !!float 1.5e5  # 高噪声需要更多训练
+  policy: 'MlpPolicy'
+  learning_rate: !!float 8e-4  # 更保守学习率适应噪声
+  batch_size: 128             # 更大batch降低噪声方差
+  buffer_size: 100000
+  learning_starts: 3000       # 更多初始经验收集
+  gamma: 0.99
+  target_update_interval: 30  # 更频繁更新适应噪声
+  train_freq: 128             # 降低训练频率增加稳定性
+  gradient_steps: 64
+  exploration_fraction: 0.25   # 延长探索适应噪声
+  exploration_final_eps: 0.05  # 保持适度探索
+  policy_kwargs: "dict(net_arch=[512, 512], n_quantiles=20)"  # 更多分位数建模不确定性
+  experiment_note: "cross_env_validation_cartpole_noise0.100"
+  # 高噪声环境 σ=0.100
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.100
+      clip: true
+      inplace: false

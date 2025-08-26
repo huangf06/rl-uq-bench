@@ -1,0 +1,164 @@
+# Complete Multi-Method UQ Evaluation Configuration
+# 4种UQ方法 × 5个噪声级别 × 10个种子 = 完整比较实验
+
+experiment:
+  name: "complete_multi_method_uq_evaluation"
+  description: "Complete UQ benchmark: QRDQN, Bootstrapped DQN, MC Dropout, DQN baseline"
+  version: "3.0"
+
+environment:
+  id: "LunarLander-v3"
+  success_threshold: 200
+  
+  noise_levels:
+    uncertainty_degradation_noise0.000: 0.000
+    uncertainty_degradation_noise0.025: 0.025
+    uncertainty_degradation_noise0.050: 0.050
+    uncertainty_degradation_noise0.075: 0.075
+    uncertainty_degradation_noise0.100: 0.100
+  
+  # 全部噪声级别
+  active_noise_levels: ["uncertainty_degradation_noise0.000", "uncertainty_degradation_noise0.025", "uncertainty_degradation_noise0.050", "uncertainty_degradation_noise0.075", "uncertainty_degradation_noise0.100"]
+
+algorithms:
+  active: ["qrdqn", "bootstrapped_dqn", "mcdropout_dqn", "dqn"]
+  
+  configs:
+    qrdqn:
+      type: "distributional"
+      uncertainty_type: "quantile"
+      n_quantiles: 170
+      uncertainty_estimation:
+        method: "quantile_std"
+        quantile_range: [0.1, 0.9]
+        
+    bootstrapped_dqn:
+      type: "ensemble"
+      uncertainty_type: "epistemic"
+      n_heads: 10
+      bootstrap_prob: 0.65
+      uncertainty_estimation:
+        method: "ensemble_std"
+        
+    mcdropout_dqn:
+      type: "bayesian"
+      uncertainty_type: "epistemic_aleatoric"
+      dropout_rate: 0.1
+      n_mc_samples: 30
+      uncertainty_estimation:
+        method: "mc_sampling"
+        
+    dqn:
+      type: "point_estimate"
+      uncertainty_type: "none"  # 基线对照，无不确定性
+      uncertainty_estimation:
+        method: "none"
+
+data:
+  n_seeds: 10
+  seeds: [101, 307, 911, 1747, 2029, 2861, 3253, 4099, 7919, 9011]
+  n_episodes_per_seed: 10
+  eval_episodes: 100  # 总计: 10 episodes/seed × 10 seeds = 100 episodes
+  n_mc_samples: 30
+  bootstrap_samples: 200
+  confidence_levels: [0.5, 0.8, 0.9]
+
+metrics:
+  distributional:
+    crps:
+      enabled: true
+      variants: ["quantile", "ensemble", "mc"]  # 支持多种CRPS计算方式
+  
+  interval_based:
+    wis:
+      enabled: true
+      confidence_levels: [0.5, 0.8, 0.9]
+    coverage:
+      enabled: true
+      confidence_levels: [0.5, 0.8, 0.9]
+    picp:
+      enabled: true
+      confidence_levels: [0.5, 0.8, 0.9]
+  
+  calibration:
+    ace:
+      enabled: true
+      confidence_levels: [0.5, 0.8, 0.9]
+    ece:
+      enabled: true
+      n_bins: 10
+      
+  performance:
+    rmse:
+      enabled: true
+    mae:
+      enabled: true
+    correlation:
+      enabled: true
+      methods: ["pearson", "spearman"]
+
+calibration:
+  enabled: true
+  validation_split: 0.3
+  methods:
+    temperature_scaling:
+      enabled: true
+      search_range: [0.5, 3.0]
+      search_steps: 26
+    bias_correction:
+      enabled: true
+
+paths:
+  base_dir: "uq_pipeline"
+  data_dir: "uq_results/data"
+  results_dir: "uq_results/results"
+  models_dir: "logs/multi_env_experiments"
+  cache_dir: ".cache"
+
+model_load:
+  device: "cpu"
+  force_cpu: true
+  custom_objects:
+    learning_rate: 0.0
+    lr_schedule: null
+    exploration_schedule: null
+
+execution:
+  pipeline:
+    skip_existing: true
+    cache_duration_hours: 24
+    force_rerun: false
+  
+  stages:
+    stage0_config: true
+    stage1_dataset: true
+    stage2_performance: true
+    stage3_q_extraction: true
+    stage4_metrics: true
+    stage5_calibration: true
+    stage6_report: true
+  
+  parallel:
+    enabled: false  # 先串行运行，确保稳定性
+    max_workers: 4
+    timeout_minutes: 60
+  
+  error_handling:
+    continue_on_failure: true
+    retry_attempts: 2
+    save_partial_results: true
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  console_enabled: true
+  file_enabled: true
+  log_file: "complete_multi_method_pipeline.log"
+
+global:
+  seed: 42
+  reproducible: true
+  compression:
+    enabled: true
+    format: "xz"
+    level: 6

@@ -1,0 +1,15 @@
+LunarLander-v3:
+  batch_size: 128
+  buffer_size: 50000
+  experiment_note: ablation_quantiles_50
+  exploration_final_eps: 0.1
+  exploration_fraction: 0.12
+  gamma: 0.99
+  gradient_steps: -1
+  learning_rate: 0.00063
+  learning_starts: 1000
+  n_timesteps: 100000
+  policy: MlpPolicy
+  policy_kwargs: dict(net_arch=[256, 256], n_quantiles=50)
+  target_update_interval: 100
+  train_freq: 8

@@ -1,0 +1,24 @@
+# QR-DQN 超保守噪声版本 - σ=0.100
+# 基于无噪声成功配置，极端保守参数
+
+CartPole-v1:
+  n_timesteps: !!float 2e5         # 大幅延长训练
+  policy: 'MlpPolicy'
+  learning_rate: !!float 3e-4      # 超低学习率
+  batch_size: 128                  # 大batch降噪声影响
+  buffer_size: 200000              # 大buffer增加经验多样性
+  learning_starts: 5000            # 更多初始探索
+  gamma: 0.99
+  target_update_interval: 20       # 更频繁target更新
+  train_freq: 128                  # 降低训练频率
+  gradient_steps: 64               # 减少梯度步骤
+  exploration_fraction: 0.4        # 延长探索期
+  exploration_final_eps: 0.01      # 最小探索干扰
+  policy_kwargs: "dict(net_arch=[512, 512], n_quantiles=20)"  # 更大网络+更多分位数
+  experiment_note: "ultra_conservative_noise_0.100"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.100
+      clip: true
+      inplace: false

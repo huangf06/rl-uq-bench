@@ -1,0 +1,142 @@
+# QR-Bootstrap UQ Evaluation - Using Existing Framework
+# Based on successful complete_multi_method_experiment.yml
+
+experiment:
+  name: "qr_bootstrap_fusion_evaluation"  
+  description: "UQ evaluation for QR-Bootstrap fusion method using existing models"
+  version: "1.0"
+
+environment:
+  id: "LunarLander-v3"
+  success_threshold: 200
+  
+  noise_levels:
+    qr_bootstrap_comparison_noise0.000: 0.000
+    qr_bootstrap_comparison_noise0.050: 0.050
+    qr_bootstrap_comparison_noise0.100: 0.100
+  
+  # Use existing trained model directories
+  active_noise_levels: ["qr_bootstrap_comparison_noise0.000", "qr_bootstrap_comparison_noise0.050", "qr_bootstrap_comparison_noise0.100"]
+
+algorithms:
+  # Use the actual QR-Bootstrap algorithm now that it's supported
+  active: ["qr_bootstrap_dqn"]
+  
+  configs:
+    qr_bootstrap_dqn:
+      type: "hybrid"  # Fusion of distributional and ensemble
+      uncertainty_type: "qr_bootstrap_fusion"
+      n_quantiles: 51  # Match QR-Bootstrap config
+      n_heads: 5       # Bootstrap ensemble heads
+      uncertainty_estimation:
+        method: "qr_bootstrap_fusion"
+        quantile_range: [0.1, 0.9]
+        fusion_weights:
+          qr_weight: 0.6
+          bootstrap_weight: 0.4
+
+data:
+  n_seeds: 3  # We have 3 good seeds: 101, 307, 911
+  seeds: [101, 307, 911]
+  n_episodes_per_seed: 20
+  eval_episodes: 60
+  n_mc_samples: 20
+  bootstrap_samples: 100
+  confidence_levels: [0.8, 0.9]
+
+metrics:
+  distributional:
+    crps:
+      enabled: true
+      variants: ["quantile"]
+  
+  interval_based:
+    wis:
+      enabled: true
+      confidence_levels: [0.8, 0.9]
+    coverage:
+      enabled: true
+      confidence_levels: [0.8, 0.9]
+  
+  calibration:
+    ace:
+      enabled: true
+      confidence_levels: [0.8, 0.9]
+    picp:
+      enabled: true
+      confidence_levels: [0.8, 0.9]
+  
+  performance:
+    rmse:
+      enabled: true
+    mae:
+      enabled: true
+    correlation:
+      enabled: true
+      methods: ["pearson"]
+
+calibration:
+  enabled: true
+  validation_split: 0.3
+  methods:
+    temperature_scaling:
+      enabled: true
+      search_range: [0.5, 2.0]
+      search_steps: 16
+    bias_correction:
+      enabled: true
+
+paths:
+  base_dir: "uq_pipeline"
+  data_dir: "uq_results/data"
+  results_dir: "uq_results/results" 
+  models_dir: "logs/multi_env_experiments"
+  cache_dir: ".cache"
+
+model_load:
+  device: "cpu"
+  force_cpu: true
+  custom_objects:
+    learning_rate: 0.0
+    lr_schedule: null
+    exploration_schedule: null
+
+execution:
+  pipeline:
+    skip_existing: true
+    cache_duration_hours: 24
+    force_rerun: false
+  
+  stages:
+    stage0_config: true
+    stage1_dataset: true
+    stage2_performance: true
+    stage3_q_extraction: true
+    stage4_metrics: true
+    stage5_calibration: true
+    stage6_report: true
+  
+  parallel:
+    enabled: false
+    max_workers: 1
+    timeout_minutes: 30
+  
+  error_handling:
+    continue_on_failure: true
+    retry_attempts: 1
+    save_partial_results: true
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  console_enabled: true
+  file_enabled: true
+  log_file: "qr_bootstrap_simple.log"
+
+global:
+  seed: 42
+  reproducible: true
+  compression:
+    enabled: true
+    format: "xz"
+    level: 6

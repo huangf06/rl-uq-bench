@@ -1,0 +1,103 @@
+# QR-Bootstrap Hybrid DQN hyperparameters
+# 结合QR-DQN和BootstrappedDQN的混合方法
+
+# LunarLander-v3 配置
+LunarLander-v3:
+  policy: 'QRBootstrapPolicy'
+  n_timesteps: 800000
+  buffer_size: 100000
+  learning_rate: 1e-4
+  batch_size: 32
+  learning_starts: 1000
+  target_update_interval: 1000
+  train_freq: 4
+  gradient_steps: 1
+  exploration_fraction: 0.1
+  exploration_initial_eps: 1.0
+  exploration_final_eps: 0.05
+  gamma: 0.99
+  tau: 1.0
+  max_grad_norm: 10
+  
+  # 混合方法特有参数
+  n_quantiles: 51  # QR分支分位数数量 (减少到51个平衡性能)
+  n_bootstrap_heads: 5  # Bootstrap分支头数 (减少到5个平衡效率)
+  
+  # 损失权重
+  qr_loss_weight: 1.0
+  bootstrap_loss_weight: 1.0
+  consistency_loss_weight: 0.1
+  fusion_regularization_weight: 0.01
+  
+  policy_kwargs:
+    net_arch: [256, 256]
+    n_quantiles: 51
+    n_bootstrap_heads: 5
+
+# CartPole-v1 配置 (更简单的任务)
+CartPole-v1:
+  policy: 'QRBootstrapPolicy'
+  n_timesteps: 100000
+  buffer_size: 50000
+  learning_rate: 1e-4
+  batch_size: 32
+  learning_starts: 500
+  target_update_interval: 500
+  train_freq: 4
+  gradient_steps: 1
+  exploration_fraction: 0.1
+  exploration_initial_eps: 1.0
+  exploration_final_eps: 0.02
+  gamma: 0.99
+  tau: 1.0
+  max_grad_norm: 10
+  
+  # 混合方法特有参数
+  n_quantiles: 31  # 更少的分位数适应简单任务
+  n_bootstrap_heads: 3  # 更少的头数
+  
+  # 损失权重
+  qr_loss_weight: 1.0
+  bootstrap_loss_weight: 1.0
+  consistency_loss_weight: 0.1
+  fusion_regularization_weight: 0.01
+  
+  policy_kwargs:
+    net_arch: [128, 128]  # 更小的网络
+    n_quantiles: 31
+    n_bootstrap_heads: 3
+
+# Atari Breakout 配置 (如果需要测试)
+BreakoutNoFrameskip-v4:
+  policy: 'QRBootstrapPolicy'
+  n_timesteps: 1000000
+  buffer_size: 100000
+  learning_rate: 1e-4
+  batch_size: 32
+  learning_starts: 10000
+  target_update_interval: 1000
+  train_freq: 4
+  gradient_steps: 1
+  exploration_fraction: 0.1
+  exploration_initial_eps: 1.0
+  exploration_final_eps: 0.01
+  gamma: 0.99
+  tau: 1.0
+  max_grad_norm: 10
+  
+  # CNN特征提取 (Atari)
+  policy_kwargs:
+    features_extractor_class: 'stable_baselines3.common.torch_layers.NatureCNN'
+    n_quantiles: 51
+    n_bootstrap_heads: 5
+    net_arch: []  # CNN后直接连接输出层
+
+# 通用默认配置
+_default_:
+  policy: 'QRBootstrapPolicy'
+  n_quantiles: 51
+  n_bootstrap_heads: 5
+  qr_loss_weight: 1.0
+  bootstrap_loss_weight: 1.0
+  consistency_loss_weight: 0.1
+  fusion_regularization_weight: 0.01

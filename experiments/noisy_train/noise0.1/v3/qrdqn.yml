@@ -1,0 +1,113 @@
+# QR-DQN V3 配置 - Noise σ=0.1 性能增强版本
+# 基于V2稳定性突破，专注提升学习能力达到≥150目标
+# V2成功: 12.7±9.7, 成功率16.3%, 方差减少87%
+# V3策略: 保持稳定性 + 增强学习能力
+
+atari:
+  env_wrapper:
+    - stable_baselines3.common.atari_wrappers.AtariWrapper
+  frame_stack: 4
+  policy: 'CnnPolicy'
+  n_timesteps: !!float 1e7
+  learning_starts: 50000
+  exploration_fraction: 0.025
+  optimize_memory_usage: False
+  experiment_note: "noisy_0.1_v3_enhanced_learning"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.1
+      clip: true
+      inplace: false
+
+# Tuned
+CartPole-v1:
+  n_timesteps: !!float 5e4
+  policy: 'MlpPolicy'
+  learning_rate: !!float 2.3e-3
+  batch_size: 64
+  buffer_size: 100000
+  learning_starts: 1000
+  gamma: 0.99
+  target_update_interval: 10
+  train_freq: 256
+  gradient_steps: 128
+  exploration_fraction: 0.16
+  exploration_final_eps: 0.04
+  policy_kwargs: "dict(net_arch=[256, 256], n_quantiles=10)"
+  experiment_note: "noisy_0.1_v3_enhanced_learning"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.1
+      clip: true
+      inplace: false
+
+# Tuned
+MountainCar-v0:
+  n_timesteps: !!float 1.2e5
+  policy: 'MlpPolicy'
+  learning_rate: !!float 4e-3
+  batch_size: 128
+  buffer_size: 10000
+  learning_starts: 1000
+  gamma: 0.98
+  target_update_interval: 600
+  train_freq: 16
+  gradient_steps: 8
+  exploration_fraction: 0.2
+  exploration_final_eps: 0.07
+  policy_kwargs: "dict(net_arch=[256, 256], n_quantiles=25)"
+  experiment_note: "noisy_0.1_v3_enhanced_learning"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.1
+      clip: true
+      inplace: false
+
+# V3 性能增强版 - LunarLander-v3
+LunarLander-v3:
+  n_timesteps: !!float 8e5  # 大幅增加: 5e5 → 8e5 (60%增加)
+  policy: 'MlpPolicy'
+  learning_rate: !!float 2e-4  # 稍微降低: 3e-4 → 2e-4 (更稳定学习)
+  batch_size: 256  # 保持V2优势: 减少梯度噪声
+  buffer_size: 300000  # 增强经验: 200k → 300k
+  learning_starts: 2000  # 保持V2设置: 早期但稳定
+  gamma: 0.99
+  target_update_interval: 100  # 保持V2设置: 提高适应性
+  train_freq: 4  # 保持V2设置: 更频繁训练
+  gradient_steps: -1
+  exploration_fraction: 0.05  # 保持V2稳定性: 减少随机干扰
+  exploration_final_eps: 0.01  # 保持V2稳定性: 接近确定性策略
+  policy_kwargs: "dict(net_arch=[512, 512], n_quantiles=170)"  # 增强网络: [256,256] → [512,512]
+  experiment_note: "noisy_0.1_v3_enhanced_learning"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.1
+      clip: true
+      inplace: false
+
+# Tuned
+Acrobot-v1:
+  n_timesteps: !!float 1e5
+  policy: 'MlpPolicy'
+  learning_rate: !!float 6.3e-4
+  batch_size: 128
+  buffer_size: 50000
+  learning_starts: 0
+  gamma: 0.99
+  target_update_interval: 250
+  train_freq: 4
+  gradient_steps: -1
+  exploration_fraction: 0.12
+  exploration_final_eps: 0.1
+  policy_kwargs: "dict(net_arch=[256, 256], n_quantiles=25)"
+  experiment_note: "noisy_0.1_v3_enhanced_learning"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.1
+      clip: true
+      inplace: false 

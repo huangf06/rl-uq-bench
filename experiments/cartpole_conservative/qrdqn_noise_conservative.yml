@@ -1,0 +1,25 @@
+# QR-DQN 噪声环境保守版本 - σ=0.100
+# 基于原始配置，噪声环境需要更长训练和更保守学习
+
+CartPole-v1:
+  n_timesteps: !!float 1.2e5       # 噪声环境需要更多训练
+  policy: 'MlpPolicy'
+  learning_rate: !!float 8e-4      # 更保守学习率适应噪声
+  batch_size: 64                   # 保持原始大小
+  buffer_size: 100000              # 保持原始
+  learning_starts: 1000            # 保持原始
+  gamma: 0.99                      # 保持原始
+  target_update_interval: 10       # 保持原始
+  train_freq: 256                  # 保持原始
+  gradient_steps: 128              # 保持原始
+  exploration_fraction: 0.16       # 保持原始
+  exploration_final_eps: 0.04      # 保持原始
+  policy_kwargs: "dict(net_arch=[256, 256], n_quantiles=10)"  # 保持原始网络
+  experiment_note: "cross_env_validation_cartpole_noise0.100"
+  # 高噪声环境
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.100
+      clip: true
+      inplace: false

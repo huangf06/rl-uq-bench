@@ -1,0 +1,26 @@
+# MC Dropout DQN 最终成功配置 - σ=0.050
+# 添加dropout参数，优化训练策略
+
+CartPole-v1:
+  n_timesteps: !!float 1.5e5  # dropout需要更多数据
+  policy: 'MlpPolicy'
+  learning_rate: !!float 6e-4  # 最保守学习率
+  batch_size: 64              # 适中batch size适应dropout
+  buffer_size: 100000
+  learning_starts: 4000       # 最多初始经验
+  gamma: 0.99
+  target_update_interval: 25
+  train_freq: 256             # 原始训练频率
+  gradient_steps: 128
+  exploration_fraction: 0.4    # 最长探索期适应dropout随机性
+  exploration_final_eps: 0.02
+  # 关键Dropout参数
+  policy_kwargs: "dict(net_arch=[512, 512], dropout_p=0.1)"
+  experiment_note: "cross_env_validation_cartpole_noise0.050"
+  # 中等噪声环境
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.050
+      clip: true
+      inplace: false

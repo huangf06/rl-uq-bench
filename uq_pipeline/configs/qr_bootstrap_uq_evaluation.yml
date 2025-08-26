@@ -1,0 +1,152 @@
+# QR-Bootstrap Fusion Method UQ Evaluation Configuration
+# Safe evaluation avoiding noise paradox issues
+
+experiment:
+  name: "qr_bootstrap_fusion_uq_evaluation"
+  description: "UQ evaluation for QR-Bootstrap fusion method trained models"
+  version: "1.0"
+
+environment:
+  id: "LunarLander-v3"
+  success_threshold: 200
+  
+  noise_levels:
+    qr_bootstrap_comparison_noise0.000: 0.000
+    qr_bootstrap_comparison_noise0.050: 0.050
+    qr_bootstrap_comparison_noise0.100: 0.100
+  
+  # Use directory names that match our trained models
+  active_noise_levels: ["qr_bootstrap_comparison_noise0.000", "qr_bootstrap_comparison_noise0.050", "qr_bootstrap_comparison_noise0.100"]
+
+algorithms:
+  active: ["qr_bootstrap_dqn"]
+  
+  configs:
+    qr_bootstrap_dqn:
+      type: "hybrid"  # Fusion of quantile and ensemble
+      uncertainty_type: "qr_bootstrap_fusion"
+      n_quantiles: 51
+      n_bootstrap_heads: 5
+      fusion_weights:
+        qr_weight: 0.6
+        bootstrap_weight: 0.4
+      uncertainty_estimation:
+        method: "hybrid_fusion"
+        quantile_range: [0.1, 0.9]
+        ensemble_aggregation: "mean_std"
+
+data:
+  # Use exactly the seeds we have trained models for
+  n_seeds: 3
+  seeds: [101, 307, 911]  # These correspond to our actual trained models
+  n_episodes_per_seed: 20  # Conservative to avoid issues
+  eval_episodes: 60  # Total: 20 episodes/seed × 3 seeds
+  n_mc_samples: 20  # Reduced to be safe
+  bootstrap_samples: 100  # Conservative
+  confidence_levels: [0.8, 0.9]  # Focus on most relevant
+
+metrics:
+  distributional:
+    crps:
+      enabled: true
+      variants: ["hybrid"]  # Custom CRPS for fusion method
+  
+  interval_based:
+    wis:
+      enabled: true
+      confidence_levels: [0.8, 0.9]
+    coverage:
+      enabled: true
+      confidence_levels: [0.8, 0.9]
+  
+  calibration:
+    ace:
+      enabled: true
+      confidence_levels: [0.8, 0.9]
+    picp:
+      enabled: true
+      confidence_levels: [0.8, 0.9]
+  
+  performance:
+    rmse:
+      enabled: true
+    mae:
+      enabled: true
+    correlation:
+      enabled: true
+      methods: ["pearson"]
+
+calibration:
+  enabled: true
+  validation_split: 0.3
+  methods:
+    temperature_scaling:
+      enabled: true
+      search_range: [0.5, 2.0]  # Conservative range
+      search_steps: 16
+    bias_correction:
+      enabled: true
+
+paths:
+  base_dir: "uq_pipeline"
+  data_dir: "uq_results/qr_bootstrap_data"
+  results_dir: "uq_results/qr_bootstrap_results"
+  models_dir: "logs/multi_env_experiments"
+  cache_dir: ".cache/qr_bootstrap"
+
+model_load:
+  device: "cpu"
+  force_cpu: true
+  custom_objects:
+    learning_rate: 0.0
+    lr_schedule: null
+    exploration_schedule: null
+  # Specific settings for QR-Bootstrap models
+  qr_bootstrap_specific:
+    load_best_model: true  # Use best_model.zip when available
+    fallback_to_final: true  # Fall back to LunarLander-v3.zip
+
+execution:
+  pipeline:
+    skip_existing: true
+    cache_duration_hours: 24
+    force_rerun: false
+  
+  stages:
+    stage0_config: true
+    stage1_dataset: true
+    stage2_performance: true
+    stage3_q_extraction: true
+    stage4_metrics: true
+    stage5_calibration: true
+    stage6_report: true
+  
+  parallel:
+    enabled: false  # Disable to avoid issues
+    max_workers: 1
+    timeout_minutes: 45
+  
+  error_handling:
+    continue_on_failure: true
+    retry_attempts: 1  # Reduce retries to avoid hanging
+    save_partial_results: true
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  console_enabled: true
+  file_enabled: true
+  log_file: "qr_bootstrap_uq_evaluation.log"
+
+global:
+  seed: 42
+  reproducible: true
+  compression:
+    enabled: false  # Disable to avoid potential issues
+    
+# Safety constraints to avoid noise paradox issues
+safety:
+  timeout_per_model: 600  # 10 minutes max per model
+  max_memory_mb: 8192  # 8GB memory limit
+  emergency_stop: true
+  skip_failed_models: true

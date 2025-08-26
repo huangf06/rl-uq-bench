@@ -1,0 +1,143 @@
+# Noise Paradox Boundary Exploration Configuration
+# High-resolution analysis of Bootstrapped DQN noise paradox phenomenon
+
+experiment:
+  name: "noise_paradox_boundary_analysis"
+  description: "High-resolution noise paradox boundary exploration for Bootstrapped DQN"
+  version: "1.0"
+
+environment:
+  id: "LunarLander-v3"
+  success_threshold: 200
+  
+  noise_levels:
+    noise_paradox_boundary_0.020: 0.020
+    noise_paradox_boundary_0.022: 0.022  
+    noise_paradox_boundary_0.025: 0.025
+    noise_paradox_boundary_0.027: 0.027
+    noise_paradox_boundary_0.030: 0.030
+  
+  # Run all noise boundary levels (use directory names that match trained models)
+  active_noise_levels: ["noise_paradox_boundary_0.020", "noise_paradox_boundary_0.022", "noise_paradox_boundary_0.025", "noise_paradox_boundary_0.027", "noise_paradox_boundary_0.030"]
+
+algorithms:
+  active: ["bootstrapped_dqn"]
+  
+  configs:
+    bootstrapped_dqn:
+      type: "ensemble"
+      uncertainty_type: "ensemble_std"
+      n_heads: 10
+      bootstrap_prob: 0.65
+      uncertainty_estimation:
+        method: "ensemble_std"
+        bootstrap_samples: 200
+
+data:
+  n_seeds: 3
+  seeds: [101, 307, 911]  # Corresponding to seed_101_1, seed_307_1, seed_911_1
+  n_episodes_per_seed: 10  # 仿照主线实验，10个episodes每种子
+  eval_episodes: 30        # 总共30 episodes (10×3)
+  n_mc_samples: 30         # 仿照主线实验的MC采样
+  bootstrap_samples: 200   # 仿照主线实验的bootstrap采样
+  confidence_levels: [0.5, 0.8, 0.9]  # 仿照主线实验的多个置信度
+
+metrics:
+  distributional:
+    crps:
+      enabled: true
+      variants: ["ensemble"]  # Use ensemble CRPS for Bootstrapped DQN
+  
+  interval_based:
+    wis:
+      enabled: true
+      confidence_levels: [0.5, 0.8, 0.9]
+    coverage:
+      enabled: true
+      confidence_levels: [0.5, 0.8, 0.9]
+    picp:
+      enabled: true
+      confidence_levels: [0.5, 0.8, 0.9]
+  
+  calibration:
+    ace:
+      enabled: true
+      confidence_levels: [0.5, 0.8, 0.9]
+    ece:
+      enabled: true
+      n_bins: 10
+  
+  performance:
+    rmse:
+      enabled: true
+    mae:
+      enabled: true
+    correlation:
+      enabled: true
+      methods: ["pearson"]
+
+calibration:
+  enabled: true
+  validation_split: 0.3
+  methods:
+    temperature_scaling:
+      enabled: true
+      search_range: [0.5, 3.0]
+      search_steps: 26
+    bias_correction:
+      enabled: true
+
+paths:
+  base_dir: "uq_pipeline"
+  data_dir: "uq_results/noise_paradox_boundary"  # Dedicated directory for boundary analysis
+  results_dir: "uq_results/noise_paradox_boundary/results"
+  models_dir: "logs/multi_env_experiments"
+  cache_dir: ".cache"
+
+model_load:
+  device: "cpu"
+  force_cpu: true
+  custom_objects:
+    learning_rate: 0.0
+    lr_schedule: null
+    exploration_schedule: null
+
+execution:
+  pipeline:
+    skip_existing: true
+    cache_duration_hours: 24
+    force_rerun: false
+  
+  stages:
+    stage0_config: true
+    stage1_dataset: true
+    stage2_performance: true
+    stage3_q_extraction: true
+    stage4_metrics: true
+    stage5_calibration: true
+    stage6_report: false  # 先跳过有bug的Stage6
+  
+  parallel:
+    enabled: false
+    max_workers: 4
+    timeout_minutes: 30
+  
+  error_handling:
+    continue_on_failure: true
+    retry_attempts: 2
+    save_partial_results: true
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  console_enabled: true
+  file_enabled: true
+  log_file: "noise_paradox_boundary_pipeline.log"
+
+global:
+  seed: 42
+  reproducible: true
+  compression:
+    enabled: true
+    format: "xz"
+    level: 6

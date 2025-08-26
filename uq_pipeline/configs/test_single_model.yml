@@ -1,0 +1,100 @@
+# Test Single Paradox Model Configuration
+# Quick test to verify model loading works
+
+experiment:
+  name: "test_single_paradox_model"
+  description: "Test loading single paradox boundary model"
+  version: "1.0"
+
+environment:
+  id: "LunarLander-v3"
+  success_threshold: 200
+  
+  noise_levels:
+    noise_paradox_boundary_0.025: 0.025
+  
+  active_noise_levels: ["noise_paradox_boundary_0.025"]
+
+algorithms:
+  active: ["bootstrapped_dqn"]
+  
+  configs:
+    bootstrapped_dqn:
+      type: "ensemble"
+      uncertainty_type: "ensemble_std"
+      n_heads: 10
+      bootstrap_prob: 0.65
+      uncertainty_estimation:
+        method: "ensemble_std"
+        bootstrap_samples: 200
+
+data:
+  n_seeds: 1
+  seeds: [101]  # Test with just seed 101
+  n_episodes_per_seed: 3  # 最少episodes
+  eval_episodes: 3
+  n_mc_samples: 5  # 最少MC samples
+  bootstrap_samples: 10  # 最少bootstrap
+  confidence_levels: [0.9]
+
+metrics:
+  distributional:
+    crps:
+      enabled: true
+      variants: ["ensemble"]
+  
+  calibration:
+    ace:
+      enabled: true
+      confidence_levels: [0.9]
+
+calibration:
+  enabled: false  # Skip calibration for quick test
+
+paths:
+  base_dir: "uq_pipeline"
+  data_dir: "uq_results/test_single_model"
+  results_dir: "uq_results/test_single_model/results"
+  models_dir: "logs/multi_env_experiments"
+  cache_dir: ".cache"
+
+model_load:
+  device: "cpu"
+  force_cpu: true
+  custom_objects:
+    learning_rate: 0.0
+    lr_schedule: null
+    exploration_schedule: null
+
+execution:
+  pipeline:
+    skip_existing: false  # Force rerun for testing
+    cache_duration_hours: 0
+    force_rerun: true
+  
+  stages:
+    stage0_config: true
+    stage1_dataset: true
+    stage2_performance: true  # 现在开启，看看能不能走通
+    stage3_q_extraction: true
+    stage4_metrics: true
+    stage5_calibration: false  # 校准比较慢，先跳过
+    stage6_report: true
+  
+  error_handling:
+    continue_on_failure: false  # Stop on first error
+    retry_attempts: 1
+
+logging:
+  level: "DEBUG"  # More verbose logging for debugging
+  console_enabled: true
+  file_enabled: true
+  log_file: "test_single_model.log"
+
+global:
+  seed: 42
+  reproducible: true
+  compression:
+    enabled: true
+    format: "xz"
+    level: 1  # Faster compression for testing

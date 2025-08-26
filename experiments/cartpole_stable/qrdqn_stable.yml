@@ -1,0 +1,18 @@
+# QR-DQN 稳定配置 - 解决过度训练问题
+# 基于观察到的500分能力，添加稳定性机制
+
+CartPole-v1:
+  n_timesteps: !!float 6e4  # 减少训练步数避免过度训练
+  policy: 'MlpPolicy'
+  learning_rate: !!float 1e-3  # 更保守的学习率
+  batch_size: 64
+  buffer_size: 50000         # 减小buffer避免过度拟合老数据
+  learning_starts: 1000
+  gamma: 0.99
+  target_update_interval: 50  # 更频繁更新增加稳定性
+  train_freq: 128            # 降低训练频率
+  gradient_steps: 64         # 减少梯度步骤
+  exploration_fraction: 0.3   # 延长探索期
+  exploration_final_eps: 0.01 # 减少最终探索避免后期干扰
+  policy_kwargs: "dict(net_arch=[512, 512], n_quantiles=10)"
+  # 无噪声稳定基准

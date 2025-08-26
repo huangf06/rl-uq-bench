@@ -1,0 +1,25 @@
+# QR-DQN 不确定性退化分析 - 基准对照组 (σ=0.000)
+# 无噪声环境，作为性能上限参考
+
+LunarLander-v3:
+  n_timesteps: !!float 8e5
+  policy: 'MlpPolicy'
+  learning_rate: !!float 1.5e-4
+  batch_size: 256
+  buffer_size: 300000
+  learning_starts: 2000
+  gamma: 0.99
+  target_update_interval: 100
+  train_freq: 4
+  gradient_steps: -1
+  exploration_fraction: 0.05
+  exploration_final_eps: 0.01
+  policy_kwargs: "dict(net_arch=[512, 512], n_quantiles=170)"
+  experiment_note: "uncertainty_degradation_noise0.000"
+  # 无噪声wrapper
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.000
+      clip: true
+      inplace: false 

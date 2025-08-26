@@ -1,0 +1,27 @@
+# Bootstrapped DQN 跨环境验证 - CartPole-v1 噪声悖论关键点 (σ=0.075)
+# 使用hyperparams/bootstrapped_dqn.yml中的调校参数
+
+CartPole-v1:
+  n_timesteps: !!float 1e5
+  policy: 'MlpPolicy'
+  learning_rate: !!float 1e-3
+  batch_size: 128
+  buffer_size: 100000
+  learning_starts: 2000
+  gamma: 0.99
+  target_update_interval: 50
+  train_freq: 128
+  gradient_steps: 64
+  exploration_fraction: 0.3
+  exploration_final_eps: 0.02
+  policy_kwargs: "dict(net_arch=[512, 512])"
+  n_heads: 10
+  bootstrap_prob: 0.8
+  experiment_note: "cross_env_validation_cartpole_noise0.075"
+  # 噪声悖论关键噪声级别
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.075
+      clip: true
+      inplace: false

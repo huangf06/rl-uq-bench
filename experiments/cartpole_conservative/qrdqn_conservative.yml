@@ -1,0 +1,19 @@
+# QR-DQN 保守优化版本 - 基于原始配置的最小修改
+# 原始 learning_rate: 2.3e-3 -> 1.0e-3 (降低约2.3倍)
+# 原始 n_timesteps: 5e4 -> 8e4 (延长1.6倍)
+
+CartPole-v1:
+  n_timesteps: !!float 8e4         # 延长训练避免不充分学习
+  policy: 'MlpPolicy'
+  learning_rate: !!float 1e-3      # 保守学习率避免过度训练
+  batch_size: 64                   # 保持原始
+  buffer_size: 100000              # 保持原始
+  learning_starts: 1000            # 保持原始
+  gamma: 0.99                      # 保持原始
+  target_update_interval: 10       # 保持原始
+  train_freq: 256                  # 保持原始
+  gradient_steps: 128              # 保持原始
+  exploration_fraction: 0.16       # 保持原始
+  exploration_final_eps: 0.04      # 保持原始
+  policy_kwargs: "dict(net_arch=[256, 256], n_quantiles=10)"  # 保持原始
+  # 无噪声基准版本

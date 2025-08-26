@@ -1,0 +1,27 @@
+# Bootstrap DQN 修复版本2 - 基于LunarLander成功配置
+# 使用LunarLander中验证的bootstrap参数
+
+CartPole-v1:
+  n_timesteps: !!float 1e5
+  policy: 'MlpPolicy'
+  learning_rate: !!float 6e-4      # 参考LunarLander成功配置
+  batch_size: 128                  # 参考LunarLander
+  buffer_size: 50000               # 参考LunarLander
+  learning_starts: 1000
+  gamma: 0.99
+  target_update_interval: 100      # 参考LunarLander
+  train_freq: 8                    # 参考LunarLander
+  gradient_steps: -1               # 参考LunarLander
+  exploration_fraction: 0.12       # 参考LunarLander
+  exploration_final_eps: 0.1       # 参考LunarLander
+  policy_kwargs: "dict(net_arch=[256, 256])"
+  # 关键Bootstrap参数 - 来自LunarLander成功配置
+  n_heads: 10
+  bootstrap_prob: 0.65
+  experiment_note: "bootstrap_lunar_params_noise_0.075"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.075
+      clip: true
+      inplace: false

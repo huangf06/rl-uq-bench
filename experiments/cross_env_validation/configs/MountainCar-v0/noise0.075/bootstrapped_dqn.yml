@@ -1,0 +1,25 @@
+# Bootstrapped DQN 跨环境验证 - MountainCar-v0 噪声悖论 (σ=0.075)
+# 使用hyperparams/bootstrapped_dqn.yml中的调校参数
+
+MountainCar-v0:
+  n_timesteps: !!float 1.2e5
+  policy: 'MlpPolicy'
+  learning_rate: !!float 4e-3
+  batch_size: 128
+  buffer_size: 10000
+  learning_starts: 1000
+  gamma: 0.98
+  target_update_interval: 600
+  train_freq: 16
+  gradient_steps: 8
+  exploration_fraction: 0.2
+  exploration_final_eps: 0.07
+  policy_kwargs: "dict(net_arch=[256, 256])"
+  experiment_note: "cross_env_validation_mountaincar_noise0.075"
+  # 噪声悖论关键噪声级别
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.075
+      clip: true
+      inplace: false

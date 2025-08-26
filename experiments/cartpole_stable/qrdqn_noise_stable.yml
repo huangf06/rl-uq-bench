@@ -1,0 +1,25 @@
+# QR-DQN 噪声稳定配置 - σ=0.100
+# 针对噪声环境的稳定训练策略
+
+CartPole-v1:
+  n_timesteps: !!float 1e5   # 噪声环境需要更多训练但不过度
+  policy: 'MlpPolicy'
+  learning_rate: !!float 5e-4 # 更小学习率增加稳定性
+  batch_size: 128
+  buffer_size: 50000
+  learning_starts: 2000
+  gamma: 0.99
+  target_update_interval: 100 # 更慢目标网络更新
+  train_freq: 64
+  gradient_steps: 32
+  exploration_fraction: 0.4   # 延长探索适应噪声
+  exploration_final_eps: 0.02
+  policy_kwargs: "dict(net_arch=[512, 512], n_quantiles=20)"
+  experiment_note: "cross_env_validation_cartpole_noise0.100"
+  # 稳定的噪声训练
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.100
+      clip: true
+      inplace: false

@@ -1,0 +1,194 @@
+# UQ Pipeline Unified Configuration Template v2.0
+# Integrates best practices from analysis and uq_pipeline systems
+
+experiment:
+  name: "noise_degradation_qrdqn_v2"
+  description: "Systematic UQ evaluation under different noise levels"
+  version: "2.0"
+
+environment:
+  id: "LunarLander-v3"
+  success_threshold: 200
+  
+  noise_levels:
+    clean: 0.000
+    low: 0.025
+    medium: 0.050
+    high: 0.075
+    extreme: 0.100
+  
+  active_noise_levels: []  # empty means all levels
+
+algorithms:
+  active: ["qrdqn"]
+  
+  configs:
+    dqn:
+      type: "deterministic"
+      uncertainty_type: "none"
+      ensemble_size: 1
+      uncertainty_estimation:
+        method: "constant"
+        constant_std: 1e-3
+        
+    qrdqn:
+      type: "distributional"
+      uncertainty_type: "quantile"
+      n_quantiles: 170
+      uncertainty_estimation:
+        method: "quantile_std"
+        quantile_range: [0.1, 0.9]
+        
+    bootstrapped_dqn:
+      type: "ensemble"
+      uncertainty_type: "ensemble"
+      ensemble_size: 10
+      uncertainty_estimation:
+        method: "ensemble_std"
+        sampling_strategy: "random"
+        
+    mcdropout_dqn:
+      type: "monte_carlo"
+      uncertainty_type: "mc_dropout"
+      dropout_rate: 0.05
+      mc_samples: 30
+      uncertainty_estimation:
+        method: "mc_std"
+        sampling_strategy: "consistent"
+
+data:
+  n_seeds: 10
+  seeds: [101, 307, 911, 1747, 2029, 2861, 3253, 4099, 7919, 9011]
+  n_episodes_per_seed: 10
+  n_mc_samples: 30
+  bootstrap_samples: 200
+  confidence_levels: [0.5, 0.8, 0.9, 0.95]
+
+metrics:
+  distributional:
+    crps:
+      enabled: true
+      variants: ["gaussian", "quantile", "empirical"]
+    kl_divergence:
+      enabled: false
+      
+  interval_based:
+    wis:
+      enabled: true
+      confidence_levels: [0.5, 0.8, 0.9]
+    coverage:
+      enabled: true
+      confidence_levels: [0.5, 0.8, 0.9]
+      
+  calibration:
+    ace:
+      enabled: true
+      confidence_levels: [0.5, 0.8, 0.9]
+    ece:
+      enabled: true
+      n_bins: 10
+      bin_strategy: "uniform"
+    picp:
+      enabled: true
+      confidence_levels: [0.5, 0.8, 0.9]
+      
+  performance:
+    rmse:
+      enabled: true
+    mae:
+      enabled: true
+    correlation:
+      enabled: true
+      methods: ["pearson", "spearman"]
+
+calibration:
+  enabled: true
+  validation_split: 0.3
+  methods:
+    temperature_scaling:
+      enabled: true
+      search_range: [0.5, 3.0]
+      search_steps: 26
+    bias_correction:
+      enabled: true
+    conformal_prediction:
+      enabled: false
+      alpha: 0.1
+
+paths:
+  base_dir: "uq_pipeline"
+  data_dir: "uq_results/data"
+  results_dir: "uq_results/results"
+  models_dir: "logs/multi_env_experiments"
+  cache_dir: ".cache"
+  
+  output_patterns:
+    ground_truth: "{env_id}/{noise_level}/eval_dataset.xz"
+    performance: "{env_id}/{noise_level}/{algorithm}/seed_{seed}/performance.json"
+    q_values: "{env_id}/{noise_level}/{algorithm}/seed_{seed}/q_values.xz"
+    metrics: "{env_id}/{noise_level}/{algorithm}/metrics.csv"
+    calibration: "{env_id}/{noise_level}/{algorithm}/calibration.json"
+    summary: "{env_id}/{noise_level}/summary.json"
+
+model_load:
+  device: "cpu"
+  force_cpu: true
+  custom_objects:
+    learning_rate: 0.0
+    lr_schedule: null
+    exploration_schedule: null
+
+execution:
+  pipeline:
+    skip_existing: true
+    cache_duration_hours: 24
+    force_rerun: false
+    
+  stages:
+    stage0_config: true
+    stage1_dataset: true
+    stage2_performance: true
+    stage3_q_extraction: true
+    stage4_metrics: true
+    stage5_calibration: true
+    stage6_report: true
+    
+  parallel:
+    enabled: false
+    max_workers: 4
+    timeout_minutes: 30
+    
+  error_handling:
+    continue_on_failure: true
+    retry_attempts: 2
+    save_partial_results: true
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  console_enabled: true
+  file_enabled: true
+  log_file: "pipeline.log"
+
+global:
+  seed: 42
+  reproducible: true
+  compression:
+    enabled: true
+    format: "xz"
+    level: 6
+
+validation:
+  required_fields: ["environment.id", "algorithms.active", "data.seeds"]
+  algorithm_model_check: true
+  path_existence_check: true
+  memory_estimation: true
+
+compatibility:
+  analysis_config_support: true
+  auto_convert: true
+  field_mapping:
+    env_id: "environment.id"
+    env_type: "environment.noise_levels"
+    uq_methods: "algorithms.active"
+    algorithm_configs: "algorithms.configs"

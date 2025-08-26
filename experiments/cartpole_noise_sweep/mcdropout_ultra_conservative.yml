@@ -1,0 +1,25 @@
+# MC Dropout DQN 超保守版本 - 极低dropout + 超稳定训练
+# 策略: 最小dropout率 + 超长训练 + 保守所有参数
+
+CartPole-v1:
+  n_timesteps: !!float 3e5        # 30万步
+  policy: 'MlpPolicy'
+  learning_rate: !!float 1e-4      # 极低学习率
+  batch_size: 32                   
+  buffer_size: 100000              
+  learning_starts: 4000            
+  gamma: 0.99
+  target_update_interval: 100      
+  train_freq: 16                   
+  gradient_steps: 8                
+  exploration_fraction: 0.5        # 长exploration
+  exploration_final_eps: 0.02      
+  # 关键Dropout参数 - 极保守设置
+  policy_kwargs: "dict(net_arch=[512, 256], dropout_p=0.02)"  # 极小dropout
+  experiment_note: "ultra_conservative_noise_0.015"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.015             # 极小噪声
+      clip: true
+      inplace: false

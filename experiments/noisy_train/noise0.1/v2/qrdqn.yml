@@ -1,0 +1,112 @@
+# QR-DQN V2 配置 - Noise σ=0.1 稳定性改进版本
+# 基于V1训练曲线分析：算法能学习但策略不稳定
+# V2策略：专注提高噪声鲁棒性和策略一致性
+
+atari:
+  env_wrapper:
+    - stable_baselines3.common.atari_wrappers.AtariWrapper
+  frame_stack: 4
+  policy: 'CnnPolicy'
+  n_timesteps: !!float 1e7
+  learning_starts: 50000
+  exploration_fraction: 0.025
+  optimize_memory_usage: False
+  experiment_note: "noisy_0.1_v2_stability_focused"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.1
+      clip: true
+      inplace: false
+
+# Tuned
+CartPole-v1:
+  n_timesteps: !!float 5e4
+  policy: 'MlpPolicy'
+  learning_rate: !!float 2.3e-3
+  batch_size: 64
+  buffer_size: 100000
+  learning_starts: 1000
+  gamma: 0.99
+  target_update_interval: 10
+  train_freq: 256
+  gradient_steps: 128
+  exploration_fraction: 0.16
+  exploration_final_eps: 0.04
+  policy_kwargs: "dict(net_arch=[256, 256], n_quantiles=10)"
+  experiment_note: "noisy_0.1_v2_stability_focused"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.1
+      clip: true
+      inplace: false
+
+# Tuned
+MountainCar-v0:
+  n_timesteps: !!float 1.2e5
+  policy: 'MlpPolicy'
+  learning_rate: !!float 4e-3
+  batch_size: 128
+  buffer_size: 10000
+  learning_starts: 1000
+  gamma: 0.98
+  target_update_interval: 600
+  train_freq: 16
+  gradient_steps: 8
+  exploration_fraction: 0.2
+  exploration_final_eps: 0.07
+  policy_kwargs: "dict(net_arch=[256, 256], n_quantiles=25)"
+  experiment_note: "noisy_0.1_v2_stability_focused"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.1
+      clip: true
+      inplace: false
+
+# V2 稳定性改进 - LunarLander-v3
+LunarLander-v3:
+  n_timesteps: !!float 5e5  # 适度增加: 4e5 → 5e5
+  policy: 'MlpPolicy'
+  learning_rate: !!float 3e-4  # 更稳定学习: 6.3e-4 → 3e-4
+  batch_size: 256  # 减少梯度噪声: 128 → 256
+  buffer_size: 200000  # 更稳定经验: 100000 → 200000
+  learning_starts: 2000  # 早期但稳定: 5000 → 2000
+  gamma: 0.99
+  target_update_interval: 100  # 提高适应性: 500 → 100
+  train_freq: 4  # 更频繁训练: 8 → 4
+  gradient_steps: -1
+  exploration_fraction: 0.05  # 大幅减少探索: 0.2 → 0.05
+  exploration_final_eps: 0.01  # 接近确定性: 0.05 → 0.01
+  policy_kwargs: "dict(net_arch=[256, 256], n_quantiles=170)"
+  experiment_note: "noisy_0.1_v2_stability_focused"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.1
+      clip: true
+      inplace: false
+
+# Tuned
+Acrobot-v1:
+  n_timesteps: !!float 1e5
+  policy: 'MlpPolicy'
+  learning_rate: !!float 6.3e-4
+  batch_size: 128
+  buffer_size: 50000
+  learning_starts: 0
+  gamma: 0.99
+  target_update_interval: 250
+  train_freq: 4
+  gradient_steps: -1
+  exploration_fraction: 0.12
+  exploration_final_eps: 0.1
+  policy_kwargs: "dict(net_arch=[256, 256], n_quantiles=25)"
+  experiment_note: "noisy_0.1_v2_stability_focused"
+  noise_wrapper:
+    name: GaussianObsNoise
+    kwargs:
+      noise_std: 0.1
+      clip: true
+      inplace: false 
