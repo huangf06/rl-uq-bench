@@ -11,7 +11,7 @@ RL-UQ-Bench addresses critical gaps in uncertainty quantification research for d
 
 ### Key Research Findings
 
-Our systematic benchmark of 150 independent training runs reveals:
+This systematic benchmark of 150 independent training runs reveals:
 
 - **QR-DQN superiority**: Distributional learning (QR-DQN) consistently outperforms ensemble and dropout methods across all metrics
 - **Noise paradox discovery**: Bootstrapped DQN exhibits counterintuitive improvement under moderate noise (σ ≈ 0.025)
@@ -74,7 +74,7 @@ python experiments/uncertainty_degradation/submit_all_experiments.sh
 
 ## 📊 Benchmark Results
 
-Our systematic evaluation (3 methods × 5 noise levels × 10 seeds = 150 training runs) reveals:
+Systematic evaluation (3 methods × 5 noise levels × 10 seeds = 150 training runs) reveals:
 
 ### Aggregate UQ Quality
 | Method | CRPS | WIS | ACE | Coverage (90%) |
@@ -136,7 +136,7 @@ rl-uq-bench/
 
 ## 🧪 Evaluation Pipeline
 
-Our standardized 6-stage evaluation pipeline ensures reproducible and comprehensive UQ assessment:
+The standardized 6-stage evaluation pipeline ensures reproducible and comprehensive UQ assessment:
 
 1. **Model Training**: Standardized architectures and hyperparameters
 2. **Task Performance**: Verification of meaningful policy learning
@@ -191,20 +191,19 @@ Areas for contribution:
 If you use this benchmark in your research, please cite:
 
 ```bibtex
-@mastersthesis{huang2024rl_uq_benchmark,
-  title={Uncertainty Quantification in Deep Reinforcement Learning: A Comparative Study of Methods Under Environmental Perturbations},
-  author={Huang, Fei},
-  year={2024},
-  school={Vrije Universiteit Amsterdam},
-  type={Master's Thesis},
-  url={https://github.com/huangf06/rl-uq-bench}
+@software{rl_uq_bench,
+  author = {Huang, Fei},
+  title = {RL-UQ-Bench: Uncertainty Quantification Benchmark for Deep Reinforcement Learning},
+  url = {https://github.com/huangf06/rl-uq-bench},
+  year = {2024}
 }
 
-@software{rl_uq_bench_2024,
-  title={RL-UQ-Bench: Uncertainty Quantification Benchmark for Deep Reinforcement Learning},
-  author={Huang, Fei},
-  year={2024},
-  url={https://github.com/huangf06/rl-uq-bench}
+@mastersthesis{huang2024uq_deep_rl,
+  title = {Uncertainty Quantification in Deep Reinforcement Learning: Systematic Benchmarks, Noise Paradox, and Calibration Complexity},
+  author = {Huang, Fei},
+  year = {2024},
+  school = {Vrije Universiteit Amsterdam},
+  type = {Master's Thesis}
 }
 ```
 
